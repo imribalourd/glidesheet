@@ -65,9 +65,7 @@ export function Root({
     },
   });
 
-  const [hasBeenOpened, setHasBeenOpened] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [justReleased, setJustReleased] = useState(false);
   const [titleId, setTitleId] = useState('');
   const [descriptionId, setDescriptionId] = useState('');
 
@@ -75,13 +73,14 @@ export function Root({
   const sheetRef = useRef<HTMLDivElement>(null);
   const openTime = useRef<Date | null>(null);
   const dragStartTime = useRef<Date | null>(null);
-  const dragEndTime = useRef<Date | null>(null);
   const lastTimeDragPrevented = useRef<Date | null>(null);
   const isAllowedToDrag = useRef(false);
   const nestedOpenChangeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pointerStart = useRef(0);
   const keyboardIsOpen = useRef(false);
   const shouldAnimate = useRef(!defaultOpen);
+  const hasBeenOpened = useRef(false);
+  const justReleased = useRef(false);
   const previousDiffFromInitial = useRef(0);
   const drawerHeightRef = useRef(0);
   const initialDrawerHeight = useRef(0);
@@ -261,7 +260,6 @@ export function Root({
     isAllowedToDrag.current = false;
     setIsDragging(false);
     onDragEndProp?.();
-    dragEndTime.current = new Date();
   }
 
   function closeSheet() {
@@ -276,7 +274,7 @@ export function Root({
 
   function openSheet() {
     if (!isOpen) {
-      setHasBeenOpened(true);
+      hasBeenOpened.current = true;
       setIsOpen(true);
     }
   }
@@ -288,19 +286,18 @@ export function Root({
     isAllowedToDrag.current = false;
     setIsDragging(false);
     onDragEndProp?.();
-    dragEndTime.current = new Date();
 
     const swipeAmount = getTranslateY(sheetRef.current);
     if (!event || !shouldDrag(event.target, false) || !swipeAmount || Number.isNaN(swipeAmount)) return;
     if (dragStartTime.current === null) return;
 
-    const timeTaken = dragEndTime.current.getTime() - dragStartTime.current.getTime();
+    const timeTaken = Date.now() - dragStartTime.current.getTime();
     const distMoved = pointerStart.current - event.pageY;
     const velocity = Math.abs(distMoved) / timeTaken;
 
     if (velocity > 0.05) {
-      setJustReleased(true);
-      setTimeout(() => setJustReleased(false), 200);
+      justReleased.current = true;
+      setTimeout(() => { justReleased.current = false; }, 200);
     }
 
     if (snapPoints) {
@@ -339,15 +336,20 @@ export function Root({
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      set(document.documentElement, { scrollBehavior: 'auto' });
-      openTime.current = new Date();
-      setHasBeenOpened(true);
-    }
-    return () => {
+    if (!isOpen) {
       reset(document.documentElement, 'scrollBehavior');
-    };
-  }, [isOpen]);
+      return;
+    }
+    set(document.documentElement, { scrollBehavior: 'auto' });
+    openTime.current = new Date();
+    hasBeenOpened.current = true;
+
+    if (!modal) {
+      window.requestAnimationFrame(() => {
+        document.body.style.pointerEvents = 'auto';
+      });
+    }
+  }, [isOpen, modal]);
 
   // VisualViewport keyboard handling
   useEffect(() => {
@@ -394,14 +396,6 @@ export function Root({
     window.visualViewport?.addEventListener('resize', onVisualViewportChange);
     return () => window.visualViewport?.removeEventListener('resize', onVisualViewportChange);
   }, [activeSnapPointIndex, snapPoints, snapPointsOffset]);
-
-  useEffect(() => {
-    if (!modal) {
-      window.requestAnimationFrame(() => {
-        document.body.style.pointerEvents = 'auto';
-      });
-    }
-  }, [modal]);
 
   // Nested support
   function onNestedOpenChange(o: boolean) {
@@ -469,7 +463,7 @@ export function Root({
         shouldAnimate,
         keyboardIsOpen,
         container,
-        hasBeenOpened,
+        hasBeenOpened: hasBeenOpened.current,
         isLastSnapPoint,
         closeThreshold,
         scrollLockTimeout,
