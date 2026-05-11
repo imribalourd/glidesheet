@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'bun:test';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import { BottomSheet } from '../src';
 
@@ -52,10 +52,12 @@ describe('Focus Trap', () => {
     expect(screen.getByRole('dialog').getAttribute('aria-modal')).toBe('false');
   });
 
-  it('closes on ESC key in modal mode', () => {
+  it('closes on ESC key in modal mode', async () => {
     render(<ModalSheetWithInputs />);
-    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    await waitFor(() => {
+      expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    });
     fireEvent.keyDown(document, { key: 'Escape' });
-    expect(screen.queryByTestId('content')).toBeNull();
+    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('closed');
   });
 });

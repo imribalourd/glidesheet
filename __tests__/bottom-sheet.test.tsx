@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'bun:test';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import { BottomSheet } from '../src';
 
@@ -28,18 +28,22 @@ describe('BottomSheet', () => {
     expect(screen.getByTestId('trigger')).toBeDefined();
   });
 
-  it('opens when trigger is clicked', () => {
+  it('opens when trigger is clicked', async () => {
     render(<SimpleSheet />);
     fireEvent.click(screen.getByTestId('trigger'));
     expect(screen.getByTestId('content')).toBeDefined();
-    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    await waitFor(() => {
+      expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    });
   });
 
-  it('closes when close button is clicked', () => {
+  it('closes when close button is clicked', async () => {
     render(<SimpleSheet defaultOpen />);
-    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    await waitFor(() => {
+      expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    });
     fireEvent.click(screen.getByTestId('close'));
-    expect(screen.queryByTestId('content')).toBeNull();
+    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('closed');
   });
 
   it('sets role=dialog on content', () => {
@@ -102,18 +106,22 @@ describe('BottomSheet controlled', () => {
     );
   }
 
-  it('opens via external state', () => {
+  it('opens via external state', async () => {
     render(<ControlledSheet />);
     fireEvent.click(screen.getByTestId('external-open'));
-    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    await waitFor(() => {
+      expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    });
   });
 
-  it('closes via external state', () => {
+  it('closes via external state', async () => {
     render(<ControlledSheet />);
     fireEvent.click(screen.getByTestId('external-open'));
-    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    await waitFor(() => {
+      expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    });
     fireEvent.click(screen.getByTestId('external-close'));
-    expect(screen.queryByTestId('content')).toBeNull();
+    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('closed');
   });
 });
 
@@ -131,9 +139,11 @@ describe('BottomSheet dismissible', () => {
     );
   }
 
-  it('does not close on ESC when dismissible=false', () => {
+  it('does not close on ESC when dismissible=false', async () => {
     render(<NonDismissibleSheet />);
-    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    await waitFor(() => {
+      expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
+    });
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
   });
