@@ -1,4 +1,4 @@
-/* ── Sheet ── */
+/* ── Sheet base ── */
 [data-glidesheet] {
   position: fixed;
   inset: 0;
@@ -6,26 +6,35 @@
   touch-action: none;
   will-change: transform;
   transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 [data-glidesheet].glidesheet-dragging {
   transition: none !important;
 }
 
-[data-glidesheet][data-state='closed'] {
-  transform: translate3d(0, 100%, 0);
-  pointer-events: none;
+/* ── Without snap points: use @keyframes ── */
+[data-glidesheet][data-snap-points='false'][data-state='open'] {
+  animation-name: glidesheet-slideFromBottom;
 }
 
-[data-glidesheet][data-state='open'] {
-  transform: translate3d(0, 0, 0);
+[data-glidesheet][data-snap-points='false'][data-state='closed'] {
+  animation-name: glidesheet-slideToBottom;
 }
 
+/* ── With snap points: use transform + transition ── */
 [data-glidesheet][data-snap-points='true'] {
-  transform: translate3d(0, var(--snap-point-height, 100%), 0);
+  transform: translate3d(0, var(--initial-transform, 100%), 0);
 }
 
+[data-glidesheet][data-delayed-snap-points='true'] {
+  transform: translate3d(0, var(--snap-point-height, 0), 0);
+}
+
+/* ── Skip animations ── */
 [data-glidesheet][data-animate='false'] {
+  animation: none !important;
   transition: none !important;
 }
 
@@ -35,16 +44,24 @@
   inset: 0;
   z-index: calc(var(--glidesheet-z-index, 50) - 1);
   background: rgba(0, 0, 0, 0.4);
-  transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-[data-glidesheet-overlay][data-state='open'] {
-  opacity: 1;
+[data-glidesheet-overlay][data-snap-points='false'] {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+[data-glidesheet-overlay][data-snap-points='false'][data-state='open'] {
+  animation-name: glidesheet-fadeIn;
 }
 
 [data-glidesheet-overlay][data-state='closed'] {
+  animation-name: glidesheet-fadeOut;
+}
+
+[data-glidesheet-overlay][data-snap-points='true'] {
   opacity: 0;
-  pointer-events: none;
+  transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 [data-glidesheet-overlay][data-snap-points='true']:not([data-snap-points-overlay='true']):not([data-state='closed']) {
@@ -103,5 +120,36 @@
 @media (hover: hover) and (pointer: fine) {
   [data-glidesheet] {
     user-select: none;
+  }
+}
+
+/* ── Keyframes ── */
+@keyframes glidesheet-slideFromBottom {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes glidesheet-slideToBottom {
+  to {
+    transform: translate3d(0, 100%, 0);
+  }
+}
+
+@keyframes glidesheet-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes glidesheet-fadeOut {
+  to {
+    opacity: 0;
   }
 }

@@ -25,28 +25,11 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
   } = useSheetContext();
 
   const [delayedSnapPoints, setDelayedSnapPoints] = useState(false);
-  // Start "closed" on mount, transition to "open" after one frame
-  const [mounted, setMounted] = useState(false);
   const composedRef = useComposedRefs(ref, sheetRef);
   const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
   const lastKnownPointerEventRef = useRef<React.PointerEvent<HTMLDivElement> | null>(null);
   const wasBeyondThePointRef = useRef(false);
   const hasSnapPoints = snapPoints && snapPoints.length > 0;
-
-  // Trigger enter animation: mount in closed position, then open after a frame
-  useEffect(() => {
-    if (!isOpen) {
-      setMounted(false);
-      return;
-    }
-    // Double RAF to ensure the browser has painted the closed state first
-    const id = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setMounted(true);
-      });
-    });
-    return () => cancelAnimationFrame(id);
-  }, [isOpen]);
 
   const isDeltaInDirection = (delta: { x: number; y: number }, threshold = 0) => {
     if (wasBeyondThePointRef.current) return true;
@@ -76,9 +59,6 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
     onRelease(event);
   }
 
-  // Determine visual state: only "open" after mounted transition
-  const visualState = isOpen && mounted ? 'open' : 'closed';
-
   const computedStyle: CSSProperties =
     snapPointsOffset && snapPointsOffset.length > 0
       ? ({
@@ -96,9 +76,9 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       aria-labelledby={titleId || undefined}
       aria-describedby={descriptionId || undefined}
       data-glidesheet=""
-      data-state={visualState}
+      data-state={isOpen ? 'open' : 'closed'}
       data-delayed-snap-points={delayedSnapPoints ? 'true' : 'false'}
-      data-snap-points={isOpen && hasSnapPoints ? 'true' : 'false'}
+      data-snap-points={hasSnapPoints ? 'true' : 'false'}
       data-custom-container={container ? 'true' : 'false'}
       data-animate={shouldAnimate?.current ? 'true' : 'false'}
       data-floating={floating ? 'true' : 'false'}
