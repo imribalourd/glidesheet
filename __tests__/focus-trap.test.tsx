@@ -56,6 +56,6 @@ describe('Focus Trap', () => {
     render(<ModalSheetWithInputs />);
     expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
     fireEvent.keyDown(document, { key: 'Escape' });
-    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('closed');
+    expect(screen.queryByTestId('content')).toBeNull();
   });
 });

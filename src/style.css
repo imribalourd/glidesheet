@@ -1,4 +1,8 @@
+/* ── Sheet ── */
 [data-glidesheet] {
+  position: fixed;
+  inset: 0;
+  z-index: var(--glidesheet-z-index, 50);
   touch-action: none;
   will-change: transform;
   transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
@@ -10,6 +14,11 @@
 
 [data-glidesheet][data-state='closed'] {
   transform: translate3d(0, 100%, 0);
+  pointer-events: none;
+}
+
+[data-glidesheet][data-state='open'] {
+  transform: translate3d(0, 0, 0);
 }
 
 [data-glidesheet][data-snap-points='true'] {
@@ -20,7 +29,12 @@
   transition: none !important;
 }
 
+/* ── Overlay ── */
 [data-glidesheet-overlay] {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--glidesheet-z-index, 50) - 1);
+  background: rgba(0, 0, 0, 0.4);
   transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
@@ -30,6 +44,7 @@
 
 [data-glidesheet-overlay][data-state='closed'] {
   opacity: 0;
+  pointer-events: none;
 }
 
 [data-glidesheet-overlay][data-snap-points='true']:not([data-snap-points-overlay='true']):not([data-state='closed']) {
@@ -40,11 +55,11 @@
   opacity: 1;
 }
 
+/* ── Handle ── */
 [data-glidesheet-handle] {
   display: block;
   position: relative;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0.5rem auto;
   height: 5px;
   width: 32px;
   border-radius: 1rem;
@@ -68,7 +83,7 @@
   touch-action: inherit;
 }
 
-/* Safe area extension — fills space below sheet to prevent transparency */
+/* ── Safe area extension ── */
 [data-glidesheet-extension] {
   position: absolute;
   top: 100%;
@@ -79,11 +94,12 @@
   background-color: inherit;
 }
 
-/* Floating mode — detached from edges with rounded corners all around */
+/* ── Floating mode ── */
 [data-glidesheet][data-floating='true'] {
   border-radius: var(--glidesheet-floating-radius, 1rem);
 }
 
+/* ── Pointer devices: prevent text selection during drag ── */
 @media (hover: hover) and (pointer: fine) {
   [data-glidesheet] {
     user-select: none;

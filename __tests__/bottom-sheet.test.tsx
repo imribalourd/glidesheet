@@ -39,7 +39,7 @@ describe('BottomSheet', () => {
     render(<SimpleSheet defaultOpen />);
     expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
     fireEvent.click(screen.getByTestId('close'));
-    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('closed');
+    expect(screen.queryByTestId('content')).toBeNull();
   });
 
   it('sets role=dialog on content', () => {
@@ -113,7 +113,7 @@ describe('BottomSheet controlled', () => {
     fireEvent.click(screen.getByTestId('external-open'));
     expect(screen.getByTestId('content').getAttribute('data-state')).toBe('open');
     fireEvent.click(screen.getByTestId('external-close'));
-    expect(screen.getByTestId('content').getAttribute('data-state')).toBe('closed');
+    expect(screen.queryByTestId('content')).toBeNull();
   });
 });
 
