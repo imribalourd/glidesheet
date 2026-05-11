@@ -22,4 +22,6 @@ export const BottomSheet = {
   Description,
 };
 
+export { useBottomSheet } from './hooks/use-bottom-sheet';
+export type { UseBottomSheetReturn } from './hooks/use-bottom-sheet';
 export type { BottomSheetRootProps, SnapPoint } from './types';

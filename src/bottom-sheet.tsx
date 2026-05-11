@@ -24,6 +24,8 @@ export function Root({
   onOpenChange,
   children,
   onDrag: onDragProp,
+  onDragStart: onDragStartProp,
+  onDragEnd: onDragEndProp,
   onRelease: onReleaseProp,
   snapPoints,
   closeThreshold = CLOSE_THRESHOLD,
@@ -188,6 +190,7 @@ export function Root({
 
     drawerHeightRef.current = sheetRef.current?.getBoundingClientRect().height || 0;
     setIsDragging(true);
+    onDragStartProp?.();
     dragStartTime.current = new Date();
 
     if (isIOS()) {
@@ -257,6 +260,7 @@ export function Root({
     sheetRef.current.classList.remove(DRAG_CLASS);
     isAllowedToDrag.current = false;
     setIsDragging(false);
+    onDragEndProp?.();
     dragEndTime.current = new Date();
   }
 
@@ -283,6 +287,7 @@ export function Root({
     sheetRef.current.classList.remove(DRAG_CLASS);
     isAllowedToDrag.current = false;
     setIsDragging(false);
+    onDragEndProp?.();
     dragEndTime.current = new Date();
 
     const swipeAmount = getTranslateY(sheetRef.current);

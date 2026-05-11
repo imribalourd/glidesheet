@@ -21,6 +21,8 @@ export interface BottomSheetRootProps {
   noBodyStyles?: boolean;
   container?: HTMLElement | null;
   onDrag?: (event: ReactPointerEvent, percentageDragged: number) => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
   onRelease?: (event: ReactPointerEvent, open: boolean) => void;
   onAnimationEnd?: (open: boolean) => void;
   onClose?: () => void;
