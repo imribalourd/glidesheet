@@ -48,10 +48,17 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
   };
 
   useEffect(() => {
-    if (hasSnapPoints) {
-      window.requestAnimationFrame(() => setDelayedSnapPoints(true));
-    }
-  }, []);
+    if (!hasSnapPoints) return;
+    // Reset on each mount so the transition plays from 100% to snap point
+    setDelayedSnapPoints(false);
+    // Double RAF: first to paint with initial-transform (100%), second to trigger transition
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setDelayedSnapPoints(true);
+      });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [hasSnapPoints]);
 
   function handlePointerUp(event: React.PointerEvent<HTMLDivElement> | null) {
     pointerStartRef.current = null;
