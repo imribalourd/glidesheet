@@ -1,0 +1,64 @@
+{
+  "name": "glidesheet",
+  "version": "0.1.0",
+  "description": "A performant React bottom sheet with reliable scroll-vs-drag detection",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "scripts": {
+    "build": "bun run build:esm && bun run build:cjs && bun run build:types && bun run build:css",
+    "build:esm": "bun build ./src/index.ts --outdir dist --format esm --external react --external react-dom --naming index.mjs",
+    "build:cjs": "bun build ./src/index.ts --outdir dist --format cjs --external react --external react-dom --naming index.js",
+    "build:types": "tsc --project tsconfig.build.json --emitDeclarationOnly",
+    "build:css": "cp src/style.css dist/style.css",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "bun run clean && bun run build"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imri-engineer/glidesheet.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "bottom-sheet",
+    "sheet",
+    "modal",
+    "glidesheet",
+    "drawer",
+    "mobile"
+  ]
+}

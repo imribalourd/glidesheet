@@ -1,0 +1,91 @@
+[data-glidesheet] {
+  touch-action: none;
+  will-change: transform;
+  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+[data-glidesheet].glidesheet-dragging {
+  transition: none !important;
+}
+
+[data-glidesheet][data-state='closed'] {
+  transform: translate3d(0, 100%, 0);
+}
+
+[data-glidesheet][data-snap-points='true'] {
+  transform: translate3d(0, var(--snap-point-height, 100%), 0);
+}
+
+[data-glidesheet][data-animate='false'] {
+  transition: none !important;
+}
+
+[data-glidesheet-overlay] {
+  transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+[data-glidesheet-overlay][data-state='open'] {
+  opacity: 1;
+}
+
+[data-glidesheet-overlay][data-state='closed'] {
+  opacity: 0;
+}
+
+[data-glidesheet-overlay][data-snap-points='true']:not([data-snap-points-overlay='true']):not([data-state='closed']) {
+  opacity: 0;
+}
+
+[data-glidesheet-overlay][data-snap-points-overlay='true'] {
+  opacity: 1;
+}
+
+[data-glidesheet-handle] {
+  display: block;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  height: 5px;
+  width: 32px;
+  border-radius: 1rem;
+  background: #e2e2e4;
+  opacity: 0.7;
+  touch-action: pan-y;
+}
+
+[data-glidesheet-handle]:hover,
+[data-glidesheet-handle]:active {
+  opacity: 1;
+}
+
+[data-glidesheet-handle-hitarea] {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100%, 2.75rem);
+  height: max(100%, 2.75rem);
+  touch-action: inherit;
+}
+
+/* Safe area extension — fills space below sheet to prevent transparency */
+[data-glidesheet-extension] {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 200%;
+  background: inherit;
+  background-color: inherit;
+}
+
+/* Floating mode — detached from edges with rounded corners all around */
+[data-glidesheet][data-floating='true'] {
+  border-radius: var(--glidesheet-floating-radius, 1rem);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-glidesheet] {
+    user-select: none;
+  }
+}
