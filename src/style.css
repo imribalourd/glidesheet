@@ -32,6 +32,12 @@
   transform: translate3d(0, var(--snap-point-height, 0), 0);
 }
 
+/* ── Close: always slide to bottom regardless of snap points ── */
+[data-glidesheet][data-state='closed'] {
+  transform: translate3d(0, 100%, 0) !important;
+  pointer-events: none;
+}
+
 /* ── Skip animations ── */
 [data-glidesheet][data-animate='false'] {
   animation: none !important;
