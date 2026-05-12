@@ -164,14 +164,27 @@ export function Root({
       return false;
     }
 
-    if (isDraggingInDirection) {
+    // Walk the DOM to check if we're inside a scrollable element
+    let isAtTopOfScroll = true;
+    let tempElement = element;
+    while (tempElement) {
+      if (tempElement.scrollHeight > tempElement.clientHeight && tempElement.scrollTop > 1) {
+        isAtTopOfScroll = false;
+        break;
+      }
+      if (tempElement.getAttribute('role') === 'dialog') break;
+      tempElement = tempElement.parentNode as HTMLElement;
+    }
+
+    // Only block upward drag if content is NOT at top of scroll
+    if (isDraggingInDirection && !isAtTopOfScroll) {
       lastTimeDragPrevented.current = date;
       return false;
     }
 
     while (element) {
       if (element.scrollHeight > element.clientHeight) {
-        if (element.scrollTop !== 0) {
+        if (element.scrollTop > 1) {
           lastTimeDragPrevented.current = new Date();
           return false;
         }
