@@ -108,6 +108,12 @@
   touch-action: inherit;
 }
 
+/* ── Kill rubber-band bounce on ALL scrollable children ── */
+[data-glidesheet] *  {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
+}
+
 /* ── Safe area extension ── */
 [data-glidesheet-extension] {
   position: absolute;

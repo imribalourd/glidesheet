@@ -58,27 +58,56 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
     return () => cancelAnimationFrame(id);
   }, [hasSnapPoints]);
 
-  // Prevent iOS rubber-band overscroll on scrollable children
+  // Prevent overscroll bounce when at scroll boundaries
+  // When scrollTop=0 and pulling down, preventDefault to let our drag handler take over
   useEffect(() => {
     const el = sheetRef.current;
     if (!el) return;
 
-    const onTouchStart = () => {
-      const scrollables = el.querySelectorAll<HTMLElement>('[data-glidesheet-scroll], [style*="overflow"]');
-      scrollables.forEach((scrollable) => {
-        const top = scrollable.scrollTop;
-        const totalScroll = scrollable.scrollHeight;
-        const currentScroll = top + scrollable.offsetHeight;
-        if (top === 0) {
-          scrollable.scrollTop = 1;
-        } else if (currentScroll === totalScroll) {
-          scrollable.scrollTop = top - 1;
+    let startY = 0;
+    let scrollableEl: HTMLElement | null = null;
+
+    const findScrollableParent = (target: EventTarget | null): HTMLElement | null => {
+      let node = target as HTMLElement | null;
+      while (node && node !== el) {
+        if (node.scrollHeight > node.clientHeight) {
+          const style = window.getComputedStyle(node);
+          if (/(auto|scroll)/.test(style.overflowY)) return node;
         }
-      });
+        node = node.parentElement;
+      }
+      return null;
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
+      scrollableEl = findScrollableParent(e.target);
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!scrollableEl) return;
+
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - startY;
+      const atTop = scrollableEl.scrollTop <= 0;
+      const atBottom = scrollableEl.scrollTop + scrollableEl.offsetHeight >= scrollableEl.scrollHeight;
+
+      // Pulling down while at top → prevent scroll, let drag handle it
+      if (atTop && deltaY > 0) {
+        e.preventDefault();
+      }
+      // Pulling up while at bottom → prevent bounce
+      if (atBottom && deltaY < 0) {
+        e.preventDefault();
+      }
     };
 
     el.addEventListener('touchstart', onTouchStart, { passive: true });
-    return () => el.removeEventListener('touchstart', onTouchStart);
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+    };
   }, [sheetRef]);
 
   function handlePointerUp(event: React.PointerEvent<HTMLDivElement> | null) {
