@@ -5,6 +5,8 @@
   z-index: var(--glidesheet-z-index, 50);
   touch-action: none;
   will-change: transform;
+  overflow: hidden;
+  overscroll-behavior: contain;
   transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
   animation-duration: 0.5s;
   animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);

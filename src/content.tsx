@@ -49,9 +49,7 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
 
   useEffect(() => {
     if (!hasSnapPoints) return;
-    // Reset on each mount so the transition plays from 100% to snap point
     setDelayedSnapPoints(false);
-    // Double RAF: first to paint with initial-transform (100%), second to trigger transition
     const id = requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         setDelayedSnapPoints(true);
@@ -59,6 +57,29 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
     });
     return () => cancelAnimationFrame(id);
   }, [hasSnapPoints]);
+
+  // Prevent iOS rubber-band overscroll on scrollable children
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el) return;
+
+    const onTouchStart = () => {
+      const scrollables = el.querySelectorAll<HTMLElement>('[data-glidesheet-scroll], [style*="overflow"]');
+      scrollables.forEach((scrollable) => {
+        const top = scrollable.scrollTop;
+        const totalScroll = scrollable.scrollHeight;
+        const currentScroll = top + scrollable.offsetHeight;
+        if (top === 0) {
+          scrollable.scrollTop = 1;
+        } else if (currentScroll === totalScroll) {
+          scrollable.scrollTop = top - 1;
+        }
+      });
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    return () => el.removeEventListener('touchstart', onTouchStart);
+  }, [sheetRef]);
 
   function handlePointerUp(event: React.PointerEvent<HTMLDivElement> | null) {
     pointerStartRef.current = null;

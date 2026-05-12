@@ -194,7 +194,11 @@ export function useSnapPoints({
     if (activeSnapPointOffset === null) return;
     const newValue = activeSnapPointOffset - draggedDistance;
 
-    if (newValue < snapPointsOffset[snapPointsOffset.length - 1]) return;
+    const maxOffset = snapPointsOffset[snapPointsOffset.length - 1];
+    const minOffset = snapPointsOffset[0];
+
+    // Don't exceed fully open (top) or first snap point (bottom)
+    if (newValue < maxOffset || newValue > minOffset) return;
 
     set(sheetRef.current, {
       transform: `translate3d(0, ${newValue}px, 0)`,

@@ -200,7 +200,10 @@ export function Root({
   }
 
   function onDragHandler(event: ReactPointerEvent<HTMLDivElement>) {
-    if (!sheetRef.current || !isDragging) return;
+    if (!sheetRef.current || !isDragging) {
+      console.log('[glidesheet] onDrag blocked', { hasRef: !!sheetRef.current, isDragging });
+      return;
+    }
 
     const draggedDistance = (pointerStart.current - event.pageY) * 1; // bottom: multiplier = 1
     const isDraggingInDirection = draggedDistance > 0;
@@ -214,7 +217,10 @@ export function Root({
 
     if (snapPointPercentageDragged !== null) percentageDragged = snapPointPercentageDragged;
     if (noCloseSnapPointsPreCondition && percentageDragged >= 1) return;
-    if (!isAllowedToDrag.current && !shouldDrag(event.target, isDraggingInDirection)) return;
+    if (!isAllowedToDrag.current && !shouldDrag(event.target, isDraggingInDirection)) {
+      console.log('[glidesheet] shouldDrag blocked');
+      return;
+    }
 
     sheetRef.current.classList.add(DRAG_CLASS);
     isAllowedToDrag.current = true;
@@ -222,12 +228,12 @@ export function Root({
     set(overlayRef.current, { transition: 'none' });
 
     if (snapPoints) {
+      console.log('[glidesheet] onDragSnapPoints', { draggedDistance, activeSnapPointOffset: snapPointsOffset[activeSnapPointIndex ?? 0] });
       onDragSnapPoints({ draggedDistance });
     }
 
+    // Don't allow dragging upward past the open position (no stretch effect)
     if (isDraggingInDirection && !snapPoints) {
-      const dampenedDistance = dampenValue(draggedDistance);
-      set(sheetRef.current, { transform: `translate3d(0, ${Math.min(dampenedDistance * -1, 0)}px, 0)` });
       return;
     }
 
