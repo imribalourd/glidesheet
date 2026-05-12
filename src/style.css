@@ -1,7 +1,9 @@
 /* ── Sheet base ── */
 [data-glidesheet] {
   position: fixed;
-  inset: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: var(--glidesheet-z-index, 50);
   touch-action: none;
   will-change: transform;
