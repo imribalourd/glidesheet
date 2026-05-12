@@ -22,14 +22,15 @@
 
 ## Why GlideSheet?
 
-**GlideSheet** was born out of frustration with existing bottom sheet libraries. [Vaul](https://github.com/emilkowalski/vaul) — the most popular React drawer — is abandoned with 92 open issues. Its core problems:
+Bottom sheets on the web don't feel native. The core challenge is the **scroll-to-drag transition** — when scrollable content reaches the top and you keep pulling down, the sheet should follow your finger and slide down. Most libraries fail at this, resulting in rubber-band bouncing, jerky transitions, or the sheet ignoring the gesture entirely.
 
-- **Scroll vs drag conflict** — When content is scrollable and at the top, pulling down should drag the sheet, not bounce the scroll. Vaul fails at this.
-- **Radix Dialog dependency** — Causes `aria-hidden` errors, `pointer-events: none` on body, and conflicts with other Radix components.
-- **`position: fixed` on body** — Breaks layout on iOS, creates whitespace after keyboard closes.
-- **4 directions support** — Adds complexity for a feature most apps don't need.
+Other common pain points with existing solutions:
+- **Heavy dependencies** that conflict with your UI library
+- **`pointer-events: none`** leaking to the body in non-modal mode
+- **`position: fixed`** hacks on the body that break iOS layouts
+- **Unreliable animation callbacks** that fire too early or not at all
 
-GlideSheet fixes all of these. Bottom-only, zero dependencies, and the scroll-to-drag transition actually works.
+GlideSheet was built to solve these problems. It focuses on one direction (bottom), ships zero runtime dependencies, and makes the scroll-to-drag transition feel native.
 
 ## Features
 
@@ -311,18 +312,20 @@ Use these for custom styling:
 | `data-glidesheet-handle` | — | Handle |
 | `data-glidesheet-no-drag` | — | Any child (opt-out from drag) |
 
-## Compared to Vaul
+## Comparison
 
-| Feature | GlideSheet | Vaul |
-|---------|-----------|------|
-| Bundle size | **~45KB** | ~77KB |
-| Dependencies | **0** | 1 (Radix Dialog) |
-| Scroll-to-drag | **Works** | Broken (92 open issues) |
-| `aria-hidden` errors | **None** | Yes (#517, 36 reactions) |
-| `pointer-events: none` leak | **None** | Yes (#509, #534) |
-| `onAnimationEnd` reliability | **`transitionend`** | `setTimeout` (broken #520) |
-| Directions | Bottom only | 4 directions |
-| Maintained | **Yes** | Abandoned |
+| | GlideSheet | Vaul | react-modal-sheet | react-spring-bottom-sheet |
+|---|---|---|---|---|
+| **Bundle** | ~45KB | ~77KB | ~30KB + Motion | ~25KB + react-spring |
+| **Dependencies** | **0** | Radix Dialog | Motion | react-spring, react-use-gesture |
+| **Scroll-to-drag** | Native feel | Inconsistent | Manual config | Manual config |
+| **Snap points** | Fraction + px | Fraction + px | 0-1 range | Callback-based |
+| **Non-modal** | Clean (no side effects) | `pointer-events` leak | Not built-in | `blocking={false}` |
+| **Keyboard (iOS)** | `visualViewport` API | `position: fixed` hack | `avoidKeyboard` prop | — |
+| **Nested sheets** | Built-in stacking | Built-in | — | — |
+| **Floating mode** | Built-in | — | — | — |
+| **React 18 + 19** | Yes | Yes | Yes | No (react-spring) |
+| **Compound components** | Yes | Yes (Radix-style) | Yes | No (single component) |
 
 ## Development
 
